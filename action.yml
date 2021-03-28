@@ -1,11 +1,25 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: waf2-allow-action
+description: Queries the runner's public IP address and then adds/removes it to the desired AWS WAF2 IPSet
+author: Dan Van Brunt
 inputs:
-  milliseconds: # change this
+  action:
+    description: Should the action be to 'add' or 'remove' the runner's Public IP
+    default: add
+  ipset_id:
+    description: The id of the AWS WAF2 IPSet to be modified
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  ipset_name:
+    description: The name of the AWS WAF2 IPSet to be modified
+    required: true
+  ipset_scope:
+    description: The scope 'CLOUDFRONT || REGIONAL' of the AWS WAF2 IPSet to be modified
+    default: REGIONAL
+  maxRetries:
+    description: How many times should it try to determine the runners public IP
+    default: 10
+  region:
+    description: AWS Region
+    default: us-east-1
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: node12
+  main: dist/index.js
