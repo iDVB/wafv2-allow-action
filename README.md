@@ -1,4 +1,4 @@
-# Public IP
+# WAFV2 Allow
 
 > Queries the runner's public IP address using [ipify](https://www.ipify.org/) and then adds/removes it to the desired AWS WAF2 IPSet 
 
