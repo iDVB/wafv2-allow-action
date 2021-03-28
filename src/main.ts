@@ -14,7 +14,7 @@ export async function run(): Promise<void> {
     const IPSetInputs = getIPSetFromInputs()
     const publicIp = await getPublicIp(maxRetries)
 
-    const NewAddress = `${publicIp}/16`
+    const NewAddress = `${publicIp}/32`
 
     if (action === 'add') {
       await addIP(NewAddress, IPSetInputs, region)
