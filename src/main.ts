@@ -6,10 +6,10 @@ import {getPublicIp} from './utils/ipify'
 
 export async function run(): Promise<void> {
   try {
-    const maxRetries: number = parseInt(core.getInput('maxRetries'), 10) || 10
-    const action: string = core.getInput('action') || 'add'
+    const maxRetries: number = parseInt(core.getInput('maxRetries'), 10)
+    const action: string = core.getInput('action')
     const region: string =
-      core.getInput('action') || process.env.AWS_DEFAULT_REGION || 'us-east-1'
+      core.getInput('region') || process.env.AWS_DEFAULT_REGION || 'us-east-1'
 
     const IPSetInputs = getIPSetFromInputs()
     const publicIp = await getPublicIp(maxRetries)
@@ -20,6 +20,10 @@ export async function run(): Promise<void> {
       await addIP(NewAddress, IPSetInputs, region)
     } else if (action === 'remove') {
       await removeIP(NewAddress, IPSetInputs, region)
+    } else {
+      throw new Error(
+        `'action' of '${action}' not understood. Must be either 'add' or 'remove'`
+      )
     }
 
     core.setOutput('address', NewAddress)
@@ -33,9 +37,9 @@ export interface IPResponse {
 }
 
 function getIPSetFromInputs(): AWS.WAFV2.GetIPSetRequest {
-  const Id: string = core.getInput('ipset_id')
-  const Name: string = core.getInput('ipset_name')
-  const Scope: string = core.getInput('ipset_scope')
+  const Id: string = core.getInput('ipset_id', {required: true})
+  const Name: string = core.getInput('ipset_name', {required: true})
+  const Scope: string = core.getInput('ipset_scope', {required: true})
   return {Id, Name, Scope}
 }
 

@@ -22,7 +22,6 @@ inputs:
     default: 10
   region:
     description: AWS Region
-    default: us-east-1
 runs:
   using: node12
   main: dist/index.js

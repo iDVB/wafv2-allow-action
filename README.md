@@ -15,7 +15,7 @@ GitHub actions shared runners are hosted in **Azure** (Windows & Linux) and **Ma
 * `ipset_name` - name of the IPSet
 * `ipset_scope` - `REGIONAL` or `CLOUDFRONT`
 * `maxRetries` - How many retries on the ipify API before failing. Default: `10`
-* `region` - AWS Region to act on.
+* `region` - AWS Region to act on. (Default: `us-east-1`)
 
 ## Required ENVs
 AWS Credientials must be provided to step.
