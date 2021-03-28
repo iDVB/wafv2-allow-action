@@ -1,6 +1,8 @@
 name: waf2-allow-action
 description: Queries the runner's public IP address and then adds/removes it to the desired AWS WAF2 IPSet
 author: Dan Van Brunt
+icon: check-circle
+color: blue
 inputs:
   action:
     description: Should the action be to 'add' or 'remove' the runner's Public IP
