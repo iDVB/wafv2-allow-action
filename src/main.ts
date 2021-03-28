@@ -8,7 +8,8 @@ export async function run(): Promise<void> {
   try {
     const maxRetries: number = parseInt(core.getInput('maxRetries'), 10) || 10
     const action: string = core.getInput('action') || 'add'
-    const region: string = core.getInput('region') || 'us-east-1'
+    const region: string =
+      core.getInput('action') || process.env.AWS_DEFAULT_REGION || 'us-east-1'
 
     const IPSetInputs = getIPSetFromInputs()
     const publicIp = await getPublicIp(maxRetries)

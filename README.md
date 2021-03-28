@@ -1,110 +1,78 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# Public IP
 
-# Create a JavaScript Action using TypeScript
+> Queries the runner's public IP address using [ipify](https://www.ipify.org/) and then adds/removes it to the desired AWS WAF2 IPSet 
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+### Motivation
+GitHub actions shared runners are hosted in **Azure** (Windows & Linux) and **Mac Stadium** for macOS, so whitelisting all these infrastructures can be difficult and needs to be updated quite often. Instead, you can use this action to temporaraly update an [AWS WAF](https://aws.amazon.com/waf/) (v2) IPSet in order to whitelist the runner's public IP and run integration, lighthouse or other related tasks. You can then use cleanup by running this action again to remove that IP.
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+[GitHub Help](https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners)
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+## Usage
 
-## Create an action from this template
+### Inputs
+* `action` - `add` or `remove` the runner's IP
+* `ipset_id` - ID of the IPSet
+* `ipset_name` - name of the IPSet
+* `ipset_scope` - `REGIONAL` or `CLOUDFRONT`
+* `maxRetries` - How many retries on the ipify API before failing. Default: `10`
+* `region` - AWS Region to act on.
 
-Click the `Use this Template` and provide the new repo details for your action
+## Required ENVs
+AWS Credientials must be provided to step.
+* `AWS_ACCESS_KEY_ID` - AWS Key ID
+* `AWS_SECRET_ACCESS_KEY` - AWS Access Key
+* `AWS_DEFAULT_REGION` (optional) - This will be used if `region` input is not provided.
 
-## Code in Main
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+### Outputs
+* `address` - (add only) 
 
-Install the dependencies  
-```bash
-$ npm install
-```
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
+### Example workflow
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+name: WAFV2 Allow Action
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+
+    steps:
+    - name: Add Public IP to Allow
+      uses: iDVB/wafv2-allow-action@latest
+      with:
+        action: add
+        ipset_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        ipset_name: MyExistingIPSet
+        ipset_scope: REGIONAL
+
+    - name: Audit Now-Allowed Site using Lighthouse
+      uses: treosh/lighthouse-ci-action@v7
+      with:
+        urls: |
+          https://example.com/
+        budgetPath: ./budget.json
+
+    - name: Remove Public IP from Allow
+      uses: iDVB/wafv2-allow-action@latest
+      with:
+        action: remove
+        ipset_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        ipset_name: MyExistingIPSet
+        ipset_scope: REGIONAL
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
+## Contributing
+Please contribute to `iDVB/wafv2-allow-action`, pull requests are welcome!
 
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
-
+## License
+The scripts and documentation in this project are released under the [MIT License](LICENSE)
 
 ## Credits
-GitHub Action: ([public-ip](https://github.com/haythem/public-ip))
-GitHub Actions [Typscript Boilerplate](https://github.com/actions/typescript-action)
+* [haythem/public-ip](https://github.com/haythem/public-ip)
+* [GitHub Actions Typscript Boilerplate](https://github.com/actions/typescript-action)
