@@ -17,8 +17,10 @@ export async function run(): Promise<void> {
     const NewAddress = `${publicIp}/32`
 
     if (action === 'add') {
+      core.info(`adding: ${NewAddress}`)
       await addIP(NewAddress, IPSetInputs, region)
     } else if (action === 'remove') {
+      core.info(`removing: ${NewAddress}`)
       await removeIP(NewAddress, IPSetInputs, region)
     } else {
       throw new Error(
